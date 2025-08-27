@@ -65,10 +65,21 @@ tbl_uvregression(
 hist(cyto$aKIRs)
 ```
 
-```
 
 5.  Write and use a function that does something with the data
 
 ```{r}
+#Function that calculate the identify whether a patient's time to transplant is below or above the average time to transplant.
+average_idf <- function(x, na.rm = TRUE){
+	meantime <- mean(cyto$time.to.transplant, na.rm = TRUE)
+	if (na.rm) {
+		x <- na.omit(x)
+	}
+	idf <- ifelse(x >= meantime,
+				 "More than or Equal to the meantime",
+				 "Less than the meantime")
+	return(idf)
+}
 
+average_idf(cyto$time.to.transplant)
 ```
