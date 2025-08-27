@@ -1,0 +1,1 @@
+The study included 64 consecutive patients who underwent T-cell replete, matched sibling donor reduced-intensity conditioning allogeneic hematopoietic stem cell transplant between January 16, 2000 and April 24, 2007 at the Cleveland Clinic.  
