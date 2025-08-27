@@ -1,0 +1,74 @@
+---
+title: "Cytomegalovirus Data Analysis"
+format: html
+editor: visual
+---
+
+## EPI 590R Final Project, Danning Tian
+
+1.  Read in raw data
+
+```{r}
+#| message: false
+#| echo: true
+
+library(tidyverse)
+library(gtsummary)
+
+cyto <- get(load(here::here("data","cytomegalovirus.rda")))
+cyto$sex_cat <- factor(cyto$sex, 
+                       levels = c(0, 1),
+                       labels = c("Female", "Male"))
+```
+
+This data set contains `r nrow(cyto)` consecutive patients who underwent T-cell replete, matched sibling donor reduced-intensity conditioning allogeneic hematopoietic stem cell transplant. `r nrow(cyto$sex==0)` are females. The patients' diagnosis are carefully noted, including `r unique(cyto$diagnosis)[1:2]` and so on.
+
+2.  Create a {gtsummary} table of descriptive statistics about your data
+
+```{r}
+#| label: tbl-initial
+#| tbl-cap: "Arranged by sex"
+cyto1 <- tbl_summary(cyto, by = sex_cat,
+						include = c(diagnosis.type, TNC.dose, CD34.dose,
+												aKIRs,TBI.dose, cgvhd, time.to.cgvhd),
+						label = list(
+							diagnosis.type ~ "Diagnosis type",
+							TNC.dose ~ "TNC",
+							CD34.dose ~ "CD34",
+							aKIRs ~ "Activating killer immunoglobulin-like receptors",
+							cgvhd ~ "Precense of cytomegalovirus reactivation",
+							time.to.cgvhd ~ "Time to cytomegalovirus reactivation"
+						))
+as_gt(cyto1)
+```
+
+3.  Fit a regression and present well-formatted results from the regression
+
+```{r}
+tbl_uvregression(
+	cyto,
+	y = cgvhd,
+	include = c(
+		sex_cat,diagnosis.type, TNC.dose, CD34.dose,aKIRs,TBI.dose
+	),
+	method = glm,
+	method.args = list(family = binomial()),
+	exponentiate = TRUE
+)
+```
+
+4.  Create a figure
+
+```{r}
+#| label: fig-hist
+#| fig-cap: "Spread of aKIRs"
+hist(cyto$aKIRs)
+```
+
+```
+
+5.  Write and use a function that does something with the data
+
+```{r}
+
+```
