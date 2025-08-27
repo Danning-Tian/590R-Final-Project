@@ -21,9 +21,9 @@ cyto$sex_cat <- factor(cyto$sex,
                        labels = c("Female", "Male"))
 ```
 
-This data set contains `r nrow(cyto)` consecutive patients who underwent T-cell replete, matched sibling donor reduced-intensity conditioning allogeneic hematopoietic stem cell transplant. `r nrow(cyto$sex==0)` are females. The patients' diagnosis are carefully noted, including `r unique(cyto$diagnosis)[1:2]` and so on.
+See Table (@tbl-initial) for summary statistics. This data set contains `r nrow(cyto)` consecutive patients who underwent T-cell replete, matched sibling donor reduced-intensity conditioning allogeneic hematopoietic stem cell transplant. `r nrow(cyto$sex==0)` are females. The patients' diagnosis are carefully noted, including `r unique(cyto$diagnosis)[1:2]` and so on.
 
-2.  Create a {gtsummary} table of descriptive statistics about your data
+2.  Create a {gtsummary} table of descriptive statistics about your data, and save it
 
 ```{r}
 #| label: tbl-initial
@@ -36,10 +36,18 @@ cyto1 <- tbl_summary(cyto, by = sex_cat,
 							TNC.dose ~ "TNC",
 							CD34.dose ~ "CD34",
 							aKIRs ~ "Activating killer immunoglobulin-like receptors",
+							TBI.dose ~ "TBI",
 							cgvhd ~ "Precense of cytomegalovirus reactivation",
 							time.to.cgvhd ~ "Time to cytomegalovirus reactivation"
-						))
+						)) |>
+	
+
+  # add a total column with the number of observations
+  add_overall(col_label = "**Total** N = {N}") |>
+  bold_labels()
 as_gt(cyto1)
+
+saveRDS(cyto1, here::here("data","cyto1.rds"))
 ```
 
 3.  Fit a regression and present well-formatted results from the regression
@@ -57,12 +65,14 @@ tbl_uvregression(
 )
 ```
 
-4.  Create a figure
+4.  Create a figure and save it
 
 ```{r}
 #| label: fig-hist
 #| fig-cap: "Spread of aKIRs"
 hist(cyto$aKIRs)
+
+ggsave(here::here("document","aKIRs_spread.png"))
 ```
 
 
@@ -81,5 +91,21 @@ average_idf <- function(x, na.rm = TRUE){
 	return(idf)
 }
 
-average_idf(cyto$time.to.transplant)
+#Function application example
+print("The time to transplant of the first 5 patients:")
+average_idf(cyto$time.to.transplant[1:5])
 ```
+
+6.  Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example)
+
+```{r}
+gtsummary::inline_text(cyto1, variable = "TNC.dose", column = "stat_1")
+
+low.TBI.dose <- inline_text(cyto1, variable = "TBI.dose",
+														level = "200",
+														column = "stat_0")
+presence.cyto <- inline_text(cyto1, variable = "cgvhd",
+														column = "stat_0")
+```
+
+Among all patients, `r low.TBI.dose` have low TBI dose, and  `presence.cyto` suffered from cytomegalovirus reactivation.
